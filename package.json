@@ -1,0 +1,12 @@
+{
+  "name": "dependency-index",
+  "devDependencies": {
+    "@types/jasmine": "^2.5.43",
+    "@types/node": "^7.0.5",
+    "jasmine": "^2.5.3",
+    "typescript": "^2.3.0-dev.20170225"
+  },
+  "scripts": {
+    "watch": "tsc -w"
+  }
+}
