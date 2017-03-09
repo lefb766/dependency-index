@@ -8,6 +8,7 @@
   },
   "scripts": {
     "watch": "tsc -w",
+    "test": "jasmine",
     "postinstall": "node scripts/generate-type-definitions.js dependency-index.d.ts"
   }
 }

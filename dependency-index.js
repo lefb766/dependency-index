@@ -8,35 +8,34 @@ class DependencyIndex {
     constructor() {
         this._resources = {};
     }
-    
+
     get(tag) {
         let resolved = this._resolve(tag);
-        if (resolved.isFactory) {
-            return resolved();
+        if (resolved.type == 'factory') {
+            return resolved.content();
         } else {
-            return resolved;
+            return resolved.content;
         }
     }
 
     addConstant(tag, value) {
-        return this._addResource(tag, value);
+        return this._addResource(tag, 'constant', value);
     }
 
     addSingleton(tag, dependencies, factory) {
         let resolvedFactory = this._createResolvedFactory(dependencies, factory);
-        Object.defineProperty(resolvedFactory, 'isFactory', { value: true });
 
-        return this._addResource(tag, resolvedFactory);
+        return this._addResource(tag, 'factory', resolvedFactory);
     }
 
-    _addResource(tag, valueOrFactory) {
-        this._resources = Object.assign(this._resources, { [tag]: valueOrFactory });
+    _addResource(tag, type, resource) {
+        this._resources[tag] = { type, content: resource };
         return this;
     }
 
     _createResolvedFactory(dependencies, factory) {
         return () => 
-            factory(...dependencies.map(tag => this._resolve(tag)));
+            factory(...dependencies.map(tag => this.get(tag)));
     }
 
     _resolve(dependencyTag) {
