@@ -60,18 +60,25 @@ function generateTypesForDependencyIndex(writeLine, maxDependencyAtOnceCountAllo
         indent + `addConstant<Tag extends keyof TypeIndex>(tag: Tag, value: TypeIndex[Tag]): ${returnTypeOfAddMethods};`,
         '',
         indent + `addObservable<Tag extends keyof TypeIndex>(tag: Tag, observable: ObservableLike<TypeIndex[Tag]>): ${returnTypeOfAddMethods};`,
+        '',
     ].forEach(writeLine);
 
     for (let count = 0; count < maxDependencyAtOnceCountAllowed; count++) {
-        writeLine(indent + generateMethodAddSingleton(className, returnTypeOfAddMethods,count));
+        writeLine(indent + generateVariadicAddMethod('Singleton', className, returnTypeOfAddMethods,count));
+    }
+
+    writeLine('');
+
+    for (let count = 0; count < maxDependencyAtOnceCountAllowed; count++) {
+        writeLine(indent + generateVariadicAddMethod('Transient', className, returnTypeOfAddMethods,count));
     }
 
     writeLine("}");
 }
 
-function generateMethodAddSingleton(className, returnType, dependencyCount) {
+function generateVariadicAddMethod(postfix, className, returnType, dependencyCount) {
     if (dependencyCount == 0) {
-        return `addSingleton<Tag extends keyof TypeIndex>(tag: Tag, deps: never[], factory: () => TypeIndex[Tag]): ${returnType};`
+        return `add${postfix}<Tag extends keyof TypeIndex>(tag: Tag, deps: undefined[], factory: () => TypeIndex[Tag]): ${returnType};`
     }
 
     let dependencyIdentifiers = [];
@@ -83,7 +90,7 @@ function generateMethodAddSingleton(className, returnType, dependencyCount) {
     }
 
     let segments = [];
-    segments.push("addSingleton<Tag extends keyof TypeIndex");
+    segments.push(`add${postfix}<Tag extends keyof TypeIndex`);
 
     // type parameters
     for (const ids of dependencyIdentifiers) {

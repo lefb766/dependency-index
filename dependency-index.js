@@ -32,8 +32,12 @@ class DependencyIndex {
     }
 
     addSingleton(tag, dependencies, factory) {
-        let resolvedFactory = this._createResolvedFactory(dependencies, factory);
+        let resolved = this._createLazyResolutionFactory(dependencies, factory)();
+        return this.addConstant(tag, resolved);
+    }
 
+    addTransient(tag, dependencies, factory) {
+        let resolvedFactory = this._createLazyResolutionFactory(dependencies, factory);
         return this._addResource(tag, 'factory', resolvedFactory);
     }
 
@@ -42,7 +46,7 @@ class DependencyIndex {
         return this;
     }
 
-    _createResolvedFactory(dependencies, factory) {
+    _createLazyResolutionFactory(dependencies, factory) {
         return () => 
             factory(...dependencies.map(tag => this.get(tag)));
     }

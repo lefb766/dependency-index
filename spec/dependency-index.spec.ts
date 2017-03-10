@@ -34,10 +34,23 @@ describe('DependencyIndex', function() {
         index = createIndex<any>();
         expect(() => { index.get('foo') }).toThrow();
 
-        index = createIndex<any>()
-            .addSingleton('bar', ['foo'], foo => foo * 2);
-            
-        expect(() => { index.get('bar') }).toThrow();
+        expect(() => {
+            index = createIndex<any>()
+                .addSingleton('bar', ['foo'], foo => foo * 2);
+
+            index.get('bar');
+        }).toThrow();
+    });
+
+    describe('when resource added with addTransient', function() {
+        it('creates instance of requested tag every time get() called', function() {
+            const index = createIndex<{ foo: {} }>()
+                .addTransient('foo', [], () => ({}));
+            const first = index.get('foo');
+            const second = index.get('foo');
+
+            expect(first !== second).toBeTruthy();
+        });
     });
 
     describe('when used with observables', function() {
