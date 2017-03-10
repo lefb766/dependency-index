@@ -13,6 +13,8 @@ class DependencyIndex {
         let resolved = this._resolve(tag);
         if (resolved.type == 'factory') {
             return resolved.content();
+        } else if (resolved.type == 'observable') {
+            return resolved.content.getValue();
         } else {
             return resolved.content;
         }
@@ -20,6 +22,13 @@ class DependencyIndex {
 
     addConstant(tag, value) {
         return this._addResource(tag, 'constant', value);
+    }
+
+    addObservable(tag, observable) {
+        return this._addResource(tag, 'observable', {
+            getValue: () => observable.getValue(),
+            subscribe: (subscriber) => observable.subscribe(subscriber)
+        });
     }
 
     addSingleton(tag, dependencies, factory) {

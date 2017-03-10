@@ -1,4 +1,5 @@
 import createIndex = require('../dependency-index');
+import Rx = require('rxjs/Rx');
 
 describe('DependencyIndex', function() {
     it('holds resources registered based on string keys', function() {
@@ -37,5 +38,24 @@ describe('DependencyIndex', function() {
             .addSingleton('bar', ['foo'], foo => foo * 2);
             
         expect(() => { index.get('bar') }).toThrow();
+    });
+
+    describe('when used with observables', function() {
+        it('keeps values up to date', function () {
+            type Index = {
+                foo: number;
+            };
+
+            let foo = new Rx.BehaviorSubject(123);
+
+            const index = createIndex<Index>()
+                .addObservable('foo', foo);
+
+            expect(index.get('foo')).toEqual(123);
+
+            foo.next(456);
+
+            expect(index.get('foo')).toEqual(456);
+        });
     });
 });
